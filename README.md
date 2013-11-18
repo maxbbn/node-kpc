@@ -20,7 +20,8 @@ $ npm install node-kpc
 
 ## Example Usage
 
-build.js
+
+Build a Package!
 
 ``` js
 var kpc = require('node-kpc');
@@ -35,5 +36,21 @@ kpc.buildPackage({
     dest: 'sample/build',
     depFilename: 'deps.js'
 });
+
+```
+
+
+Compile a package!
+
+````js
+var kpc = require('node-kpc');
+
+var pkg = kpc.compilePackage({
+    name: 'xcake',
+    path: 'sample/src',
+    ignorePackageNameInUri: true // or use 'ipn'
+});
+
+console.log(pkg);
 
 ```

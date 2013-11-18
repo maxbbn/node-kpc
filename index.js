@@ -8,7 +8,7 @@ var os = require("os");
 
 
 exports.buildPackage = buildPackage;
-exports.compilePackage = compileFile;
+exports.compilePackage = compilePackage;
 
 
 /**
