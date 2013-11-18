@@ -5,7 +5,6 @@ var fs = require('fs');
 
 describe('node-kpc', function () {
     before(function(){
-        "use strict";
         nodeKpc.buildPackage({
             'package': {
                 name: 'xcake',
