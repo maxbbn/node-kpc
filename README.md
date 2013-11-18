@@ -1,6 +1,6 @@
 # node-kpc
 
-build KISSY packages
+Build a KISSY package, for KISSY 1.3+.
 
 [![build status](https://secure.travis-ci.org/abc-team/node-kpc.png)](http://travis-ci.org/abc-team/node-kpc)
 
@@ -15,7 +15,18 @@ $ npm install node-kpc
 ## Example Usage
 
 ``` js
-var nodeKpc = require('node-kpc');
+var kpc = require('node-kpc');
+
+// build a package
+kpc.buildPackage({
+    package: {
+        name: 'xcake',
+        path: 'sample/src',
+        ignorePackageNameInUri: true
+    },
+    dest: 'sample/build'
+});
+
 ```
 =======
 kpc
