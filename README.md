@@ -27,12 +27,13 @@ var kpc = require('node-kpc');
 
 // build a package
 kpc.buildPackage({
-    package: {
+    pkg: {
         name: 'xcake',
         path: 'sample/src',
-        ignorePackageNameInUri: true
+        ignorePackageNameInUri: true // or use 'ipn'
     },
-    dest: 'sample/build'
+    dest: 'sample/build',
+    depFilename: 'deps.js'
 });
 
 ```

@@ -4,12 +4,13 @@ var expect = require('expect.js'),
 var fs = require('fs');
 
 describe('node-kpc', function () {
+
     before(function(){
         nodeKpc.buildPackage({
-            'package': {
+            'pkg': {
                 name: 'xcake',
                 path: 'sample/src',
-                ignorePackageNameInUri: true
+                ipn: true
             },
             dest: 'sample/build'
         });

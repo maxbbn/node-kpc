@@ -1,4 +1,3 @@
-'use strict';
 var esprima = require('esprima');
 var escodegen = require('escodegen');
 var path = require('path');
@@ -124,7 +123,7 @@ function fixModule(astAdd, srcFile, pkg) {
 //
 //    for(var i=0; i < pkgLen; i++) {
 //        pkgi = packages[i];
-//        pkgiPath = pkgi.ignorePackageNameInUri ? pkgi.absPath : path.join(pkgi.absPath, pkgi.name);
+//        pkgiPath = pkgi.ipn ? pkgi.absPath : path.join(pkgi.absPath, pkgi.name);
 //        if (0 === absSrc.indexOf(pkgi.absPath)) {
 //            pkg = pkgi;
 //            break;
@@ -160,7 +159,7 @@ function getModuleName(pkg, src, rel) {
     absSrcPath = path.join(dir, base);
     var mName = path.relative(absPkgPath, absSrcPath);
 
-    if (pkg.ignorePackageNameInUri) {
+    if (pkg.ipn) {
         mName = path.join(pkg.name, mName);
     }
 
@@ -223,21 +222,29 @@ function compileFile(options) {
 
 /**
  * Compile a KISSY Package
- * @param {Object} options
- * @param {String} options.name Name of Package
- * @param {String} options.path Package path in filesystem
- * @param {String} options.ignorePackageNameInUri ignore package name
- * @param {String} options.charset Charset for package
- * @return {Object} get data of a package
+ * @param {Object} pkg
+ * @param {String} pkg.name Name of Package
+ * @param {String} pkg.path Package path in filesystem
+ * @param {String} pkg.ignorePackageNameInUri ignore package name
+ * @param {String} pkg.ipn same as ignore PackageName
+ * @param {String} pkg.charset Charset for package
+ * @return {Object} The compile result of package
  */
-function compilePackage(options) {
+function compilePackage(pkg) {
+
+    if ('ipn' in pkg) {
+    } else if ('ignorePackageNameInUri' in pkg) {
+        pkg.ipn = pkg.ignorePackageNameInUri;
+    } else {
+        pkg.ipn = true;
+    }
 
     var ret = {
         files: [],
         modules: {}
     };
 
-    var src = options.path;
+    var src = pkg.path;
 
     var jsFiles = glob.
         sync('**/*.js', {
@@ -249,7 +256,7 @@ function compilePackage(options) {
 
             var mo =  compileFile({
                 'srcFile': srcFile,
-                'package': options
+                'package': pkg
             });
 
             mo.filename = filename;
@@ -300,7 +307,7 @@ function compilePackage(options) {
 /**
  * Build a KISSY Package
  * @param {Object} options
- * @param {Object} options.package Config Package
+ * @param {Object} options.pkg Config Package
  * @param {String} options.dest Package path in filesystem
  * @param {String} options.depFilename ignore package name
  * @param {String} options.charset charset for output file
@@ -317,7 +324,7 @@ function buildPackage(options) {
     options.depFilename = options.depFilename || 'deps.js';
 
 
-    var pkgData = compilePackage(options.package);
+    var pkgData = compilePackage(options.pkg);
 
 
     pkgData.files.forEach(function(file){
