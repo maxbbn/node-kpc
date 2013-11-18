@@ -2,8 +2,17 @@ var expect = require('expect.js'),
     nodeKpc = require('..');
 
 describe('node-kpc', function() {
-  it('should say hello', function(done) {
-    expect(nodeKpc()).to.equal('Hello, world');
+  it('Run without errors', function(done) {
+
+    nodeKpc.buildPackage({
+        'package': {
+            name: 'xcake',
+            path: 'sample/src',
+            ignorePackageNameInUri: true
+        },
+        dest: 'sample/build'
+    });
+
     done();
   });
 });
