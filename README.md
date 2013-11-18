@@ -2,7 +2,7 @@
 
 build KISSY packages
 
-[![build status](https://secure.travis-ci.org/maxbbn/node-kpc.png)](http://travis-ci.org/maxbbn/node-kpc)
+[![build status](https://secure.travis-ci.org/abc-team/node-kpc.png)](http://travis-ci.org/abc-team/node-kpc)
 
 ## Installation
 
