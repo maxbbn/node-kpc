@@ -17,3 +17,8 @@ $ npm install node-kpc
 ``` js
 var nodeKpc = require('node-kpc');
 ```
+=======
+kpc
+===
+
+KISSY Package Compiler
