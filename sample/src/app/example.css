@@ -1,0 +1,42 @@
+.block {
+    min-height: 100px;
+    min-width: 100px;
+    border: gainsboro 5px solid;
+    padding:1px;
+    margin: 10px 20px;
+    position:relative;
+
+}
+
+.block:after {
+    content: " ";
+    width:0;
+    height:0;
+    clear:both;
+    display:block;
+}
+.label {
+    padding: 3px;
+    position:absolute;
+    top:-5px;
+    right:-5px;
+    background:#000;
+    color:#fff;
+    -webkit-transform-origin: 100% 0;
+    -webkit-transform: rotate(-90deg) translate(0, -22px);
+}
+
+
+.success>.label {
+    background-color: yellowgreen;
+}
+
+.component {
+    width:100px;
+    height:100px;
+    float:left;
+}
+
+body {
+    background: #f2f2f2;
+}
