@@ -159,9 +159,7 @@ function getModuleName(pkg, src, rel) {
     absSrcPath = path.join(dir, base);
     var mName = path.relative(absPkgPath, absSrcPath);
 
-    if (pkg.ipn) {
-        mName = path.join(pkg.name, mName);
-    }
+    mName = path.join(pkg.name, mName);
 
     return mName;
 }
@@ -225,39 +223,49 @@ function compileFile(options) {
  * @param {Object} pkg
  * @param {String} pkg.name Name of Package
  * @param {String} pkg.path Package path in filesystem
- * @param {String} pkg.ignorePackageNameInUri ignore package name
- * @param {String} pkg.ipn same as ignore PackageName
  * @param {String} pkg.charset Charset for package
+ * @param {Array} files files to analytic
  * @return {Object} The compile result of package
  */
-function compilePackage(pkg) {
-
-    if ('ipn' in pkg) {
-    } else if ('ignorePackageNameInUri' in pkg) {
-        pkg.ipn = pkg.ignorePackageNameInUri;
-    } else {
-        pkg.ipn = true;
-    }
+function compilePackage(pkg, files) {
 
     var ret = {
         files: [],
         modules: {}
     };
 
-    var src = pkg.path;
+    var pkgPath = pkg.path;
+    var ignoredFiles = [];
 
-    var jsFiles = glob.
-        sync('**/*.js', {
-            cwd: src
+    var jsFiles = files.
+        map(function(filename){
+            return path.relative(pkgPath, filename);
+        }).
+        filter(function(filename){
+            var isPkgFile = !(/^\.\./).test(filename);
+            if (!isPkgFile) {
+                ignoredFiles.push({
+                    srcFile: path.join(pkgPath, filename)
+                });
+            }
+            return isPkgFile;
         }).
         map(function(filename){
 
-            var srcFile = path.join(src, filename);
 
-            var mo =  compileFile({
-                'srcFile': srcFile,
-                'package': pkg
-            });
+            var srcFile = path.join(pkgPath, filename);
+
+            try {
+                var mo =  compileFile({
+                    'srcFile': srcFile,
+                    'package': pkg
+                });
+            } catch(e) {
+                e.path = srcFile;
+                e.filename = filename;
+                throw(e);
+            }
+
 
             mo.filename = filename;
             mo.srcFile = srcFile;
@@ -267,6 +275,7 @@ function compilePackage(pkg) {
         });
 
     ret.files = ret.files.concat(jsFiles);
+    ret.ignoredFiles = ignoredFiles;
 
     var modules = {};
 
@@ -288,18 +297,6 @@ function compilePackage(pkg) {
 
     ret.modules = modules;
 
-    glob.sync('**/*.css', {
-        cwd: src
-    }).forEach(function(css) {
-        var srcFile = path.join(src, css);
-
-        ret.files.push({
-            srcFile: srcFile,
-            filename: css,
-            type: 'css'
-        });
-    });
-
     return ret;
 }
 
@@ -308,8 +305,9 @@ function compilePackage(pkg) {
  * Build a KISSY Package
  * @param {Object} options
  * @param {Object} options.pkg Config Package
+ * @param {Array}  options.files Config Package
  * @param {String} options.dest Package path in filesystem
- * @param {String} options.depFilename ignore package name
+ * @param {String} options.depFilename filename for dep file
  * @param {String} options.charset charset for output file
  */
 function buildPackage(options) {
@@ -324,10 +322,10 @@ function buildPackage(options) {
     options.depFilename = options.depFilename || 'deps.js';
 
 
-    var pkgData = compilePackage(options.pkg);
+    var pkgData = compilePackage(options.pkg, options.files);
 
 
-    pkgData.files.forEach(function(file){
+    pkgData.files.forEach(function(file) {
         var destFile = path.join(dest, file.filename);
 
         var code = file.genCode || file.srcCode || null;
