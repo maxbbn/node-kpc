@@ -30,11 +30,11 @@ var kpc = require('node-kpc');
 kpc.buildPackage({
     pkg: {
         name: 'xcake',
-        path: 'sample/src',
-        ignorePackageNameInUri: true // or use 'ipn'
+        path: 'sample/src'
     },
     dest: 'sample/build',
-    depFilename: 'deps.js'
+    depFilename: 'deps.js',
+    files: '**/*.js'
 });
 
 ```
@@ -49,7 +49,10 @@ var pkg = kpc.compilePackage({
     name: 'xcake',
     path: 'sample/src',
     ignorePackageNameInUri: true // or use 'ipn'
-});
+}, [
+    'index.js',
+    'mods/mod.js'
+]);
 
 console.log(pkg);
 
