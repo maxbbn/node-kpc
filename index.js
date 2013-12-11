@@ -6,163 +6,19 @@ var glob = require("glob");
 var mkdirp = require("mkdirp");
 var os = require("os");
 
+var tools = require('./lib/tools.js');
+
+var genOptions = {
+    format: {
+        newline: os.EOL
+    },
+    comment: true
+};
+
 
 exports.buildPackage = buildPackage;
 exports.compilePackage = compilePackage;
 
-
-/**
- * Find all KISSY add function call tree;
- * @param ast
- * @returns {Array}
- */
-function getKISSYAddFunctions(ast) {
-    return ast.body.filter(function(item) {
-        return item.type === 'ExpressionStatement' &&
-            item.expression.type === 'CallExpression' &&
-            item.expression.callee.object &&
-            item.expression.callee.object.name === 'KISSY' &&
-            item.expression.callee.property &&
-            item.expression.callee.property.name === 'add';
-    });
-}
-
-/**
- * get Module info
- * @param astAdd
- * @returns {*}
- */
-function getKissyModuleInfo(astAdd) {
-    var callExpression = astAdd.expression;
-    var args = callExpression.arguments;
-
-    if (!args.length) {
-        return null;
-    }
-    var kModule = {
-        name: null,
-        requires: []
-    };
-
-    if(args[0].type === 'Literal') {
-        kModule.requires = args[2] ? transform(args[2]).requires : [];
-        kModule.name = args[0].value;
-    } else {
-        throw new Error('KISSY module has no name!');
-    }
-
-    return kModule;
-}
-
-/**
- * Turn Ast to Js
- * @param ast
- * @returns {*}
- */
-function transform (ast) {
-    var result;
-    switch (ast.type) {
-        case esprima.Syntax.ObjectExpression:
-            result = {};
-            ast.properties.forEach(function(property) {
-                result[property.key.name] = transform(property.value);
-            });
-            break;
-        case esprima.Syntax.ArrayExpression:
-            result = ast.elements.map(function (element) {
-                return transform(element)
-            });
-            break;
-        case esprima.Syntax.Literal:
-            result = ast.value;
-            break;
-    }
-    return result;
-}
-
-/**
- * Fix Module
- * @param {Object} astAdd
- * @param {String} srcFile
- * @param {Object} pkg
- * @returns {*}
- */
-function fixModule(astAdd, srcFile, pkg) {
-    var callExpression = astAdd.expression;
-    var args = callExpression.arguments;
-
-    var moduleName = getModuleName(pkg, srcFile);
-
-    if (!args.length) {
-        return astAdd;
-    }
-
-    if (args[0].type === 'FunctionExpression') {
-        args.unshift({
-            type: esprima.Syntax.Literal,
-            value: moduleName
-        });
-    }
-
-    return astAdd;
-}
-
-///**
-// * Get Package By path
-// * @param src
-// * @param packages
-// * @returns {*}
-// */
-//function getPackage(src, packages) {
-//    var pkgLen = packages.length;
-//
-//    var absSrc = path.resolve(src);
-//    var pkg = null;
-//    var pkgi, pkgiPath;
-//
-//
-//    for(var i=0; i < pkgLen; i++) {
-//        pkgi = packages[i];
-//        pkgiPath = pkgi.ipn ? pkgi.absPath : path.join(pkgi.absPath, pkgi.name);
-//        if (0 === absSrc.indexOf(pkgi.absPath)) {
-//            pkg = pkgi;
-//            break;
-//        }
-//    }
-//
-//    return pkg;
-//}
-
-/**
- * get Module Name by Path
- * @param {Object} pkg
- * @param {String} src
- * @param {String} rel
- * @optional
- * @returns {*}
- */
-function getModuleName(pkg, src, rel) {
-    var absPkgPath = path.resolve(pkg.path);
-    var absSrcPath = path.resolve(src);
-
-    if (rel) {
-        absSrcPath = path.join(src, rel);
-    }
-
-    if (0 != absSrcPath.indexOf(absPkgPath)) {
-        throw new Error('文件在包外');
-    }
-
-    // remove.js
-    var dir = path.dirname(absSrcPath);
-    var base = path.basename(absSrcPath, '.js');
-    absSrcPath = path.join(dir, base);
-    var mName = path.relative(absPkgPath, absSrcPath);
-
-    mName = path.join(pkg.name, mName);
-
-    return mName;
-}
 
 /**
  * Compile a File
@@ -182,41 +38,22 @@ function compileFile(options) {
 
     var ast = esprima.parse(srcCnt);
 
-    var kissyAddFunctions = getKISSYAddFunctions(ast);
+    var kissyAddFunctions = tools.getKISSYAddFunctions(ast);
 
     if (!kissyAddFunctions.length) {
         ret.isKISSY = false;
     } else {
         kissyAddFunctions.forEach(function(fnAdd){
-            fixModule(fnAdd, srcFile, options.package);
+            tools.fixModule(fnAdd, srcFile, options.package);
         });
         ret.isKISSY = true;
-        ret.genCode = escodegen.generate(ast);
-        ret.modules = kissyAddFunctions.map(getKissyModuleInfo);
+        ret.genCode = escodegen.generate(ast, genOptions);
+        ret.modules = kissyAddFunctions.map(tools.getKissyModuleInfo);
     }
 
     return ret;
 }
 
-/*
-
-{
-  files: [{
-    filename: '',
-    srcFile: '',
-    fileType: 'css',
-    isKISSY: boolean,
-    srcCode: code,
-    genCode: code,
-  }],
-  modules: [{
-    'module/name': {
-        requires: '',
-        file: ''
-    }
-  }]
-}
- */
 
 /**
  * Compile a KISSY Package
@@ -230,14 +67,13 @@ function compileFile(options) {
 function compilePackage(pkg, files) {
 
     var ret = {
-        files: [],
         modules: {}
     };
 
     var pkgPath = pkg.path;
     var ignoredFiles = [];
 
-    var jsFiles = files.
+    ret.files = files.
         map(function(filename){
             return path.relative(pkgPath, filename);
         }).
@@ -274,12 +110,12 @@ function compilePackage(pkg, files) {
             return mo;
         });
 
-    ret.files = ret.files.concat(jsFiles);
+
     ret.ignoredFiles = ignoredFiles;
 
     var modules = {};
 
-    jsFiles.
+    ret.files.
         map(function(result){
             return result.modules;
         }).
@@ -297,20 +133,79 @@ function compilePackage(pkg, files) {
 
     ret.modules = modules;
 
+    var modulesAst = generatorModuleAst(modules);
+
+    ret.depFile =   "/** Generated by KPC **/" + os.EOL +
+                    escodegen.generate(modulesAst, genOptions)  + os.EOL;
+
     return ret;
 }
 
+/**
+ * Generator ast for a Module config script.
+ * @param {Object} modules
+ * @returns {*}
+ */
+function generatorModuleAst(modules) {
+
+    var codeBase = "KISSY.config('modules', {});";
+
+
+    var astModuleConfig = esprima.parse(codeBase);
+
+    var properties = astModuleConfig.body[0].expression.arguments[1].properties;
+
+    for(var key in modules){
+
+        properties.push({
+            type: "Property",
+            key: {
+                "type": "Literal",
+                "value": key
+            },
+            value: {
+                "type": "ObjectExpression",
+                "properties": [
+                    {
+                        "type": "Property",
+                        "key": {
+                            "type": "Identifier",
+                            "name": "requires"
+                        },
+                        "value": {
+                            "type": "ArrayExpression",
+                            "elements": modules[key].requires.map(function(name) {
+                                return {
+                                    type: "Literal",
+                                    value: name
+                                }
+                            })
+                        },
+                        "kind": "init"
+                    }
+                ]
+            },
+            kind: "init"
+        });
+
+    }
+
+
+
+    return astModuleConfig;
+}
 
 /**
  * Build a KISSY Package
  * @param {Object} options
  * @param {Object} options.pkg Config Package
- * @param {Array}  options.files Config Package
+ * @param {Array}  options.files Files to compile
  * @param {String} options.dest Package path in filesystem
  * @param {String} options.depFilename filename for dep file
  * @param {String} options.charset charset for output file
  */
 function buildPackage(options) {
+
 
 
     var dest = options.dest;
@@ -321,8 +216,27 @@ function buildPackage(options) {
 
     options.depFilename = options.depFilename || 'deps.js';
 
+    if (!options.files) {
+        options.files = '**/*'
+    }
 
-    var pkgData = compilePackage(options.pkg, options.files);
+    if (!(options.files instanceof Array)) {
+        options.files = [options.files];
+    }
+    var buildPath = options.pkg.path;
+    var files = options.files.reduce(function(prev, pattern) {
+            return prev.concat(
+                glob.sync(pattern, {
+                    cwd: buildPath
+                }).filter(function(filename){
+                    return /\.js$/.test(filename);
+                })).map(function(filename){
+                    return path.join(buildPath, filename)
+                })
+        }, []);
+
+
+    var pkgData = compilePackage(options.pkg, files);
 
 
     pkgData.files.forEach(function(file) {
@@ -341,13 +255,9 @@ function buildPackage(options) {
     });
 
 
-    if (pkgData.modules) {
+    if (pkgData.depFile) {
         var destDepFile = path.join(dest, options.depFilename);
-        var depFile = 'KISSY.config(' +
-            JSON.stringify({
-                modules: pkgData.modules
-            },null, 4) + ');';
         mkdirp.sync(path.dirname(destDepFile));
-        fs.writeFileSync(destDepFile, depFile);
+        fs.writeFileSync(destDepFile, pkgData.depFile);
     }
 }

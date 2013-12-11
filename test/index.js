@@ -12,6 +12,7 @@ describe('node-kpc', function () {
                 path: 'sample/src',
                 ipn: true
             },
+            files: '**/*',
             dest: 'sample/build'
         });
     });
@@ -20,7 +21,7 @@ describe('node-kpc', function () {
 
         expect(fs.existsSync('sample/build/deps.js')).to.be(true);
 
-        expect(fs.existsSync('sample/build/app/example.css')).to.be(true);
+
         expect(fs.existsSync('sample/build/app/index.js')).to.be(true);
         expect(fs.existsSync('sample/build/app/mod.js')).to.be(true);
         expect(fs.existsSync('sample/build/app/namedMod.js')).to.be(true);
@@ -38,7 +39,6 @@ describe('node-kpc', function () {
 
         expect(fs.existsSync('sample/build/pages/home/index.js')).to.be(true);
         expect(fs.existsSync('sample/build/pages/home/mod.js')).to.be(true);
-        expect(fs.existsSync('sample/build/pages/home/page.css')).to.be(true);
         done();
     });
 });
