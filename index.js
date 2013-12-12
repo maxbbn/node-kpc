@@ -39,7 +39,11 @@ function compileFile(options) {
         srcCode: srcCnt
     };
 
-    var ast = esprima.parse(srcCnt);
+    var ast = esprima.parse(srcCnt, {
+        comment: true,
+        tokens: true,
+        range: true
+    });
 
     var kissyAddFunctions = tools.getKISSYAddFunctions(ast);
 
@@ -51,6 +55,7 @@ function compileFile(options) {
         });
         ret.isKISSY = true;
 //        console.log(JSON.stringify(ast, null, 4));
+        ret.genCode = escodegen.attachComments(ast, ast.comments, ast.tokens);
         ret.genCode = escodegen.generate(ast, genOptions);
         ret.modules = kissyAddFunctions.map(tools.getKissyModuleInfo);
     }
