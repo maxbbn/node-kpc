@@ -1,3 +1,6 @@
+/**
+ * With factory and config
+ */
 KISSY.add(function( S, Node){
     var $ = Node.all;
     return {

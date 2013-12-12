@@ -1,4 +1,7 @@
-KISSY.add(function( S, require){
+/**
+ * @fileoverview cjs style
+ */
+KISSY.add(function(S, require){
 
     var Node = require('node');
     var Header = require('../components/header/');
