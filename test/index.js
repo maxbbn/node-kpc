@@ -12,9 +12,8 @@ describe('node-kpc', function () {
                 path: 'sample/src',
                 ipn: true
             },
-            files: '**/*',
             dest: 'sample/build'
-        });
+        }, '**/*.js');
     });
 
     it('build all files', function (done) {
