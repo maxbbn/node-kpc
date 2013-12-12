@@ -1,4 +1,9 @@
-KISSY.add(function( S, Node, Header ){
+KISSY.add(function( S, require){
+
+    var Node = require('node');
+    var Header = require('../components/header/');
+    require('./mod/');
+    require('./example.css');
 
     var App = {};
 
@@ -12,9 +17,4 @@ KISSY.add(function( S, Node, Header ){
 
     return App;
 
-}, { requires: [
-    'node',
-    '../components/header/',
-    './mod',
-    './example.css'
-]});
+});
