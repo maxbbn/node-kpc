@@ -1,7 +1,7 @@
 /**
- * @fileoverview cjs style
+ * @fileoverview cjs compiled
  */
-KISSY.add(function(S, require){
+KISSY.add('xcake/app/cjs-full', ['node', '../components/header/', './mod/', './example.css'], function(S, require){
 
     var Node = require('node');
     var Header = require('../components/header/');

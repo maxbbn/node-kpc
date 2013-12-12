@@ -1,7 +1,13 @@
 /**
- * @fileoverview cjs style
+/**
+ * @fileoverview cjs compiled
  */
-KISSY.add('xcake/app/cjs-full', function (S, require) {
+KISSY.add('xcake/app/cjs-full', [
+    'node',
+    '../components/header/',
+    './mod/',
+    './example.css'
+], function (S, require) {
     var Node = require('node');
     var Header = require('../components/header/');
     require('./mod/');
@@ -14,11 +20,4 @@ KISSY.add('xcake/app/cjs-full', function (S, require) {
     }
     App.init = init;
     return App;
-}, {
-    'requires': [
-        'node',
-        '../components/header/',
-        './mod/',
-        './example.css'
-    ]
 });
