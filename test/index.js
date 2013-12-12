@@ -1,43 +1,42 @@
-var expect = require('expect.js'),
-    nodeKpc = require('..');
+var expect = require('expect.js');
+var nodeKpc = require('..');
+var rimraf = require('rimraf');
+var glob = require('glob');
 
+var path = require('path');
 var fs = require('fs');
 
-describe('node-kpc', function () {
+function readFile(file) {
+    return fs.readFileSync(file, 'utf8');
+}
 
-    before(function(){
-        nodeKpc.buildPackage({
-            'pkg': {
-                name: 'xcake',
-                path: 'sample/src',
-                ipn: true
-            },
-            dest: 'sample/build'
-        }, '**/*.js');
+describe('buildPackage', function () {
+
+    before(function(done){
+        rimraf('sample/build', function() {
+            nodeKpc.buildPackage({
+                'pkg': {
+                    name: 'xcake',
+                    path: 'sample/src',
+                    ipn: true
+                },
+                dest: 'sample/build'
+            }, '**/*.js');
+            done();
+        });
+
     });
 
-    it('build all files', function (done) {
-
-        expect(fs.existsSync('sample/build/deps.js')).to.be(true);
-
-
-        expect(fs.existsSync('sample/build/app/index.js')).to.be(true);
-        expect(fs.existsSync('sample/build/app/mod.js')).to.be(true);
-        expect(fs.existsSync('sample/build/app/namedMod.js')).to.be(true);
-
-        expect(fs.existsSync('sample/build/components/header/index.js')).to.be(true);
-        expect(fs.existsSync('sample/build/components/header/mod.js')).to.be(true);
-
-        expect(fs.existsSync('sample/build/components/package-config/index.js')).to.be(true);
-
-        expect(fs.existsSync('sample/build/components/slide/index.js')).to.be(true);
-        expect(fs.existsSync('sample/build/components/slide/mod.js')).to.be(true);
-
-        expect(fs.existsSync('sample/build/components/tooltip/index.js')).to.be(true);
-        expect(fs.existsSync('sample/build/components/tooltip/mod.js')).to.be(true);
-
-        expect(fs.existsSync('sample/build/pages/home/index.js')).to.be(true);
-        expect(fs.existsSync('sample/build/pages/home/mod.js')).to.be(true);
+    it('should build all file expect', function (done) {
+        glob('**/*.js', {
+            cwd: 'sample/expect'
+        }, function(err, files){
+            files.forEach(function(file){
+                var fileBuild = path.join('sample/build', file);
+                var fileExpect = path.join('sample/expect', file);
+                expect(readFile(fileBuild)).to.be(readFile(fileExpect));
+            });
+        });
         done();
     });
 });
