@@ -1,5 +1,4 @@
 /**
-/**
  * @fileoverview cjs compiled
  */
 KISSY.add('xcake/app/cjs-full', [
