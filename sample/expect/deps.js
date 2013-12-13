@@ -15,5 +15,20 @@ KISSY.config('modules', {
             './mod/',
             './example.css'
         ]
+    },
+    'xcake/app/fac-config': { 'requires': ['node'] },
+    'xcake/app/namedMod2': {
+        'requires': [
+            'node',
+            './mod'
+        ]
+    },
+    'xcake/pages/home/index': {
+        'requires': [
+            'node',
+            'xcake/app/',
+            './page.css',
+            'xcake/components/slide/'
+        ]
     }
 });
