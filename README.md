@@ -37,6 +37,55 @@ kpc.build({
 
 ```
 
+
+<table>
+    <thead>
+        <tr>
+            <th>Before</th>
+            <th>After</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+<pre>
+sample/src
+├── app
+│   ├── cjs-full.js
+│   ├── cjs.js
+│   ├── fac-config.js
+│   ├── name-fac-config.js
+│   ├── no-kissy.js
+│   ├── object.js
+│   └── string.js
+└── pages
+    └── home
+        ├── index.js
+        └── mod.js
+</pre>
+            </td>
+            <td>
+<pre>
+sample/build
+├── app
+│   ├── cjs-full.js
+│   ├── cjs.js
+│   ├── fac-config.js
+│   ├── name-fac-config.js
+│   ├── no-kissy.js
+│   ├── object.js
+│   └── string.js
+├── map.js
+└── pages
+    └── home
+        ├── index.js
+        └── mod.js
+</pre>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
 #### Specify Files to build
 
 ``` js
@@ -50,12 +99,54 @@ kpc.build({
     },
     dest: 'sample/build', // where the package is build to
     depFile: 'sample/build/map.js' //
-}, [
-    'sample/src/app/*.js',
-    'sample/src/pages/*.js'
-]);
+}, ['sample/src/app/*.js']);
 
 ```
+After build:
+<table>
+    <thead>
+        <tr>
+            <th>src</th>
+            <th>dest</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+<pre>
+sample/src
+├── app
+│   ├── cjs-full.js
+│   ├── cjs.js
+│   ├── fac-config.js
+│   ├── name-fac-config.js
+│   ├── no-kissy.js
+│   ├── object.js
+│   └── string.js
+└── pages
+    └── home
+        ├── index.js
+        └── mod.js
+</pre>
+            </td>
+            <td>
+<pre>
+sample/build
+├── app
+│   ├── cjs-full.js
+│   ├── cjs.js
+│   ├── fac-config.js
+│   ├── name-fac-config.js
+│   ├── no-kissy.js
+│   ├── object.js
+│   └── string.js
+└─ map.js
+
+</pre>
+            </td>
+        </tr>
+    </tbody>
+</table>
 
 
 
