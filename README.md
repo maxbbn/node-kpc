@@ -7,8 +7,8 @@ Build a KISSY package, for KISSY 1.3+.
 ## Features
 
 - Simple
-- For KISSY 1.3 or 1.4 only
-- For Online Combo Only
+- KISSY 1.3+
+- Online combo only
 - Support CJS Style
 
 ## Installation
