@@ -14,11 +14,11 @@ function fileEql(file1, file2) {
     expect(readFile(file1)).to.be.eql(readFile(file2));
 }
 
-describe('kpc.buildPackage', function () {
+describe('kpc.build', function () {
 
-    before(function(done){
+    before(function(done) {
         rimraf('sample/build', function() {
-            nodeKpc.buildPackage({
+            nodeKpc.build({
                 'pkg': {
                     name: 'xcake',
                     path: 'sample/src',
@@ -29,7 +29,6 @@ describe('kpc.buildPackage', function () {
             }, 'sample/src/**/*.js');
             done();
         });
-
     });
 
     it('should build dep file', function () {

@@ -1,14 +1,14 @@
 var expect = require('expect.js');
 var nodeKpc = require('..');
 
-describe('kpc.compilePackage', function () {
+describe('kpc.compile', function () {
 
 
     describe('compile all', function(){
         var pkg;
 
         before(function(){
-            pkg = nodeKpc.compilePackage({
+            pkg = nodeKpc.compile({
                 name: 'xcake',
                 path: 'sample/src',
                 ipn: true
@@ -33,7 +33,7 @@ describe('kpc.compilePackage', function () {
             });
         });
 
-        it('should has ignoreFiles in pkg', function () {
+        it('should has ignoreFiles array in pkg', function () {
             expect(pkg.ignoredFiles).to.be.an('array');
             expect(pkg.ignoredFiles.length).to.be(0);
         });
@@ -55,7 +55,7 @@ describe('kpc.compilePackage', function () {
         var pkg;
 
         before(function(){
-            pkg = nodeKpc.compilePackage({
+            pkg = nodeKpc.compile({
                 name: 'xcake',
                 path: 'sample/src',
                 ipn: true

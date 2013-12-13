@@ -17,8 +17,8 @@ var genOptions = {
 };
 
 
-exports.buildPackage = buildPackage;
-exports.compilePackage = compilePackage;
+exports.build = build;
+exports.compile = compile;
 exports.generateDepFile = generateDepFile;
 
 function resolveFiles(files, defaultFile) {
@@ -91,7 +91,7 @@ function compileFile(options) {
  * @param {Array} files optional files to analytic
  * @return {Object} The compile result of package
  */
-function compilePackage(pkg, files) {
+function compile(pkg, files) {
 
     var ret = {};
 
@@ -182,7 +182,7 @@ function  generateDepFile(modules) {
  * @param {Array|String}  files Files to compile
  * @return {Object} the package compiled
  */
-function buildPackage(options, files) {
+function build(options, files) {
 
     var dest = options.dest;
 
@@ -192,7 +192,7 @@ function buildPackage(options, files) {
 
     files = resolveFiles(files);
 
-    var pkgData = compilePackage(options.pkg, files);
+    var pkgData = compile(options.pkg, files);
 
 
     pkgData.files.forEach(function(file) {
