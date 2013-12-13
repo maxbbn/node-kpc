@@ -72,8 +72,8 @@ function compileFile(options) {
         ret.isKISSY = true;
 
         ret.modules = kissyAddFunctions.map(tools.getKissyModuleInfo);
-
         escodegen.attachComments(ast, ast.comments, ast.tokens);
+
         ret.genCode = escodegen.generate(ast, genOptions);
 
 
