@@ -7,9 +7,4 @@ KISSY.add('xcake/app/namedMod2', function (S) {
             S.log('common mod');
         }
     };
-}, {
-    requires: [
-        'node',
-        './mod'
-    ]
-});
+}, {});

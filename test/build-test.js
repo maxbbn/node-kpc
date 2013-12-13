@@ -31,9 +31,15 @@ describe('kpc.build', function () {
         });
     });
 
-    it('should build dep file', function () {
+    it('should kissy module with name and factory', function () {
         fileEql('sample/build/map.js', 'sample/expect/map.js');
     });
+
+    it('should build dep file', function () {
+        fileEql('sample/build/app/name-fac.js', 'sample/expect/app/name-fac.js');
+    });
+
+
     it('should build cjs style module (app/cjs.js)', function () {
         fileEql('sample/build/app/cjs.js', 'sample/expect/app/cjs.js');
     });
