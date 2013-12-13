@@ -20,7 +20,7 @@ $ npm install node-kpc
 
 ## Example Usage
 
-#### Build a Package!
+#### Case1. Build all file in a Package
 
 ``` js
 var kpc = require('node-kpc');
@@ -86,7 +86,7 @@ sample/build
     </tbody>
 </table>
 
-#### Specify Files to build
+#### Case2. Specify Files to build
 
 ``` js
 var kpc = require('node-kpc');
@@ -150,7 +150,7 @@ sample/build
 
 
 
-#### Compile a package (all file in package path)
+#### Case3. Compile a package (all file in package path)
 
 ````js
 var kpc = require('node-kpc');
@@ -202,7 +202,7 @@ the pkg look like this
 }
 ```
 
-#### Specify files to compile
+#### Case4. Specify files to compile
 
 ````js
 var kpc = require('node-kpc');
