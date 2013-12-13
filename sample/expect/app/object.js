@@ -1,4 +1,4 @@
 /**
  * Support Object
  */
-KISSY.add('xcake/app/object', { env: 'dev' }, {});
+KISSY.add('xcake/app/object', { env: 'dev' });

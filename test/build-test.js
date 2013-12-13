@@ -31,12 +31,16 @@ describe('kpc.build', function () {
         });
     });
 
-    it('should kissy module with name and factory', function () {
+    it('should build dep file', function () {
         fileEql('sample/build/map.js', 'sample/expect/map.js');
     });
 
-    it('should build dep file', function () {
+    it('should kissy module with name and factory (app/name-fac.js)', function () {
         fileEql('sample/build/app/name-fac.js', 'sample/expect/app/name-fac.js');
+    });
+
+    it('should file with multi modules (app/multi-module.js)', function () {
+        fileEql('sample/build/app/multi-module.js', 'sample/expect/app/multi-module.js');
     });
 
 

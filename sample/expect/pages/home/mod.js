@@ -4,4 +4,4 @@ KISSY.add('xcake/pages/home/mod', function (S) {
             S.log('page mod');
         }
     };
-}, {});
+});
