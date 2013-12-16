@@ -10,6 +10,7 @@ Build a KISSY package, for KISSY 1.3+.
 - KISSY 1.3+
 - Online combo only
 - Support CJS Style
+- Support Module Name Flatten
 
 ## Installation
 
@@ -18,6 +19,32 @@ This module is installed via npm:
 ``` bash
 $ npm install node-kpc
 ```
+
+## API
+
+### kpc.build(options[, files])
+- options.name, String, Name of package, required
+- options.path, String, Path of package, required
+- options.flatten, Boolean, false, 是否压缩模块名, optional
+- files Array|String, Files to compile, optional
+
+
+### kpc.compile(options[, files])
+
+- options.name, String, Name of package, required
+- options.path, String, Path of package, required
+- options.flatten, Boolean, false, 是否压缩模块名, optional
+- files Array|String, Files to compile, optional
+- Return Object
+
+### kpc.generateDepFile(modules);
+
+- options.name, String, Name of package, required
+- options.path, String, Path of package, required
+- options.flatten, Boolean, false, 是否压缩模块名, optional
+- files Array|String, Files to compile, optional
+- Return Object
+
 
 ## Example Usage
 
@@ -203,7 +230,7 @@ the pkg look like this
 }
 ```
 
-#### Case4. Specify files to compile
+#### Case5. Specify files to compile
 
 ````js
 var kpc = require('node-kpc');
