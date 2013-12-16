@@ -39,11 +39,8 @@ $ npm install node-kpc
 
 ### kpc.generateDepFile(modules);
 
-- options.name, String, Name of package, required
-- options.path, String, Path of package, required
-- options.flatten, Boolean, false, 是否压缩模块名, optional
-- files Array|String, Files to compile, optional
-- Return Object
+- modules Object, the module object compiled
+- return String
 
 
 ## Example Usage
