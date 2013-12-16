@@ -1,6 +1,6 @@
 {
   "name": "node-kpc",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "build KISSY packages",
   "main": "index.js",
   "scripts": {
