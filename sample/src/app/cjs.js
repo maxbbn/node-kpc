@@ -4,8 +4,8 @@
 KISSY.add(function( S, require){
 
     var Node = require('node');
-    var Header = require('../components/header/');
-    require('./mod/');
+    var Header = require('../pages/home/');
+    require('./cjs-full');
     require('./example.css');
 
     var App = {};
