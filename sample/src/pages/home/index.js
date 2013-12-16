@@ -1,4 +1,4 @@
-KISSY.add(function( S, Node, App, Slide){
+KISSY.add(function( S, Node, App, Mod){
     var $ = Node.all;
     function init() {
         App.init();
@@ -20,7 +20,7 @@ KISSY.add(function( S, Node, App, Slide){
 
 }, { requires: [
     'node',
-    'xcake/app/',
-    './page.css',
-    'xcake/components/slide/'
+    'xcake/app/cjs',
+    './mod',
+    './page.css'
 ]});
