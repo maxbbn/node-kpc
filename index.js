@@ -250,7 +250,6 @@ function build(options, files) {
 
 
     pkgData.files.forEach(function(file) {
-        console.log(file.moduleName, '->', file.mapModuleName);
         var destFile = path.join(dest, file.filename);
 
         var code = file.genCode || file.srcCode || null;
