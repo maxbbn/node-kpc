@@ -1,15 +1,15 @@
 /**
- * @fileoverview cjs compiled
+ * Generate by node-kpc
  */
 KISSY.add('xcake/app/cjs-full', [
     'node',
-    '../components/header/',
-    './mod/',
+    '../pages/home/',
+    './cjs',
     './example.css'
 ], function (S, require) {
     var Node = require('node');
-    var Header = require('../components/header/');
-    require('./mod/');
+    var Header = require('../pages/home/');
+    require('./cjs');
     require('./example.css');
     var App = {};
     function init(config) {

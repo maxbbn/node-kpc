@@ -1,15 +1,15 @@
 /**
- * With name factory and config
+ * Generate by node-kpc
  */
-KISSY.add('xcake/app/namedMod2', function (S) {
+KISSY.add('xcake/app/name-fac-config', function (S) {
     return {
         log: function () {
             S.log('common mod');
         }
     };
 }, {
-    requires: [
+    'requires': [
         'node',
-        './mod'
+        './cjs-full'
     ]
 });

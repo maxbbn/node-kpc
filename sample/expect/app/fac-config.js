@@ -1,5 +1,5 @@
 /**
- * With factory and config
+ * Generate by node-kpc
  */
 KISSY.add('xcake/app/fac-config', function (S, Node) {
     var $ = Node.all;
@@ -8,4 +8,4 @@ KISSY.add('xcake/app/fac-config', function (S, Node) {
             S.log('common mod');
         }
     };
-}, { requires: ['node'] });
+}, { 'requires': ['node'] });

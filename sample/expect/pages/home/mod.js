@@ -1,3 +1,6 @@
+/**
+ * Generate by node-kpc
+ */
 KISSY.add('xcake/pages/home/mod', function (S) {
     return {
         log: function () {

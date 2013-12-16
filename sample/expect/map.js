@@ -3,32 +3,32 @@ KISSY.config('modules', {
     'xcake/app/cjs-full': {
         'requires': [
             'node',
-            '../components/header/',
-            './mod/',
+            '../pages/home/',
+            './cjs',
             './example.css'
         ]
     },
     'xcake/app/cjs': {
         'requires': [
             'node',
-            '../components/header/',
-            './mod/',
+            '../pages/home/',
+            './cjs-full',
             './example.css'
         ]
     },
     'xcake/app/fac-config': { 'requires': ['node'] },
-    'xcake/app/namedMod2': {
+    'xcake/app/name-fac-config': {
         'requires': [
             'node',
-            './mod'
+            './cjs-full'
         ]
     },
     'xcake/pages/home/index': {
         'requires': [
             'node',
-            'xcake/app/',
-            './page.css',
-            'xcake/components/slide/'
+            'xcake/app/cjs',
+            './mod',
+            './page.css'
         ]
     }
 });

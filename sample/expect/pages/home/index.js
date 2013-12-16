@@ -1,4 +1,7 @@
-KISSY.add('xcake/pages/home/index', function (S, Node, App, Slide) {
+/**
+ * Generate by node-kpc
+ */
+KISSY.add('xcake/pages/home/index', function (S, Node, App, Mod) {
     var $ = Node.all;
     function init() {
         App.init();
@@ -14,10 +17,10 @@ KISSY.add('xcake/pages/home/index', function (S, Node, App, Slide) {
     }
     return { init: init };
 }, {
-    requires: [
+    'requires': [
         'node',
-        'xcake/app/',
-        './page.css',
-        'xcake/components/slide/'
+        'xcake/app/cjs',
+        './mod',
+        './page.css'
     ]
 });
