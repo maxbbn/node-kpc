@@ -1,5 +1,7 @@
 var esprima = require('esprima');
 var escodegen = require('escodegen');
+var _ = require('lodash');
+
 var path = require('path');
 var fs = require('fs');
 var glob = require("glob");
@@ -13,7 +15,7 @@ var genOptions = {
         newline: os.EOL,
         quotes: 'single'
     },
-    comment: true
+    comment: false
 };
 
 
@@ -38,56 +40,80 @@ function resolveFiles(files, defaultFile) {
     }, []);
 }
 
-/**
- * Compile a File
- * @param {Object} options
- * @param {String} options.srcFile file to compile
- * @param {Object} options.package config for package
- * @return {Object}
- */
-function compileFile(options) {
+function preCompileFile(filename, pkg) {
 
-    var srcFile = options.srcFile;
-    var srcCnt = fs.readFileSync(srcFile, 'utf8');
-
-    var ret = {
-        srcCode: srcCnt
+    var mo = {
+        filename : filename,
+        moduleName: tools.getModuleName(pkg, filename),
+        srcFile: path.join(pkg.path, filename),
+        realFilename: filename
     };
 
-    var ast = esprima.parse(srcCnt, {
-        comment: true,
-        tokens: true,
-        range: true
-    });
+    mo.srcCode = fs.readFileSync(mo.srcFile, 'utf8');
 
-    var kissyAddFunctions = tools.getKISSYAddFunctions(ast);
+    mo.ast = esprima.parse(mo.srcCode);
+    mo.astAddFunctions = tools.getKISSYAddFunctions(mo.ast);
 
-    if (!kissyAddFunctions.length) {
-        ret.isKISSY = false;
-    } else {
-        kissyAddFunctions.forEach(function(fnAdd){
-            tools.fixModuleName(fnAdd, srcFile, options.package);
-        });
+    mo.isKISSY = mo.astAddFunctions.length > 0;
 
-        ret.isKISSY = true;
-
-        ret.modules = kissyAddFunctions.map(tools.getKissyModuleInfo);
-        escodegen.attachComments(ast, ast.comments, ast.tokens);
-
-        ret.genCode = escodegen.generate(ast, genOptions);
-
-
-    }
-
-    return ret;
+    return mo;
 }
 
+/**
+ * Compile a File
+ * @param {Object} mo
+ * @param {String} mo.srcFile file to compile
+ * @param {String} mo.mapFilename file to compile
+ * @param {String} mo.moduleName KISSY module name
+ * @param {String} mo.mapModuleName KISSY module name map
+ * @param {String} mo.filename file to compile
+ * @param {String} mo.astAddFunctions ast function of all KISSY.add
+ * @param {String} mo.ast ast of file
+ * @param {Object} pkg config for package
+ * @return {Object}
+ */
+function compileFile(mo, pkg) {
+
+    mo.modules = mo.astAddFunctions.map(function(fnAdd) {
+        return tools.fixModuleName(fnAdd, mo, pkg);
+    });
+
+    if (mo.mapFilename) {
+        mo.filename = mo.mapFilename;
+    }
+
+
+    var comment = '/**' + os.EOL;
+    comment += ' * Generate by node-kpc' + os.EOL;
+    if (mo.mapFilename) {
+        comment += ' * map from ' + mo.realFilename + os.EOL;
+    }
+    comment += ' */' + os.EOL;
+
+    mo.genCode = comment + escodegen.generate(mo.ast, genOptions);
+
+    return mo;
+}
+
+/**
+ * Generate unique module name
+ */
+var generateModuleName = (function() {
+    var prefix = '_';
+    var index = 0;
+    return function() {
+        var name = prefix + index.toString(32);
+        index += 1;
+        return name;
+    }
+});
 
 /**
  * Compile a KISSY Package
  * @param {Object} pkg
  * @param {String} pkg.name Name of Package
  * @param {String} pkg.path Package path in filesystem
+ * @param {String} pkg.flatten Package path in filesystem
  * @param {Array} files optional files to analytic
  * @return {Object} The compile result of package
  */
@@ -95,12 +121,13 @@ function compile(pkg, files) {
 
     var ret = {};
 
+    var flatten = pkg.flatten;
+    var genName = generateModuleName();
+
     var pkgPath = pkg.path;
     var ignoredFiles = [];
 
-    files = resolveFiles(files, path.join(pkgPath, '**/*'));
-
-    ret.files = files.
+    files = resolveFiles(files, path.join(pkgPath, '**/*')).
         map(function(file){
             return path.relative(pkgPath, file);
         }).
@@ -108,36 +135,56 @@ function compile(pkg, files) {
             var isPkgFile = !(/^\.\./).test(filename);
             if (!isPkgFile) {
                 ignoredFiles.push({
+                    filename: filename,
                     srcFile: path.join(pkgPath, filename)
                 });
             }
             return isPkgFile;
-        }).
+        });
+
+
+    // preCompile
+    ret.files = files.
         map(function(filename){
-            var srcFile = path.join(pkgPath, filename);
+
 
             try {
-                var mo =  compileFile({
-                    'srcFile': srcFile,
-                    'package': pkg
-                });
-            } catch(e) {
-                e.path = srcFile;
+                var mo = preCompileFile(filename, pkg);
+            } catch (e) {
                 e.filename = filename;
                 throw(e);
             }
-
-
-            mo.filename = filename;
-            mo.srcFile = srcFile;
+            if (flatten && mo.isKISSY) {
+                mo.mapFilename = genName() + '.js';
+                mo.mapModuleName = tools.getModuleName(pkg, mo.mapFilename);
+            }
 
             return mo;
         });
 
+    pkg.alias = ret.files.reduce(function(prev, mo){
+        if (mo.mapModuleName) {
+            prev[mo.moduleName] = mo.mapModuleName;
+        }
+        return prev;
+    }, {});
+
+    // compile
+    ret.files = ret.files.map(function (mo) {
+
+        try {
+            return compileFile(mo, pkg);
+        } catch(e) {
+            e.filename = mo.realFilename;
+            throw(e);
+        }
+    });
 
     ret.ignoredFiles = ignoredFiles;
+
     var modules = {};
 
+    //generate Modules' require
     ret.files.
         map(function(result){
             return result.modules;
@@ -150,9 +197,16 @@ function compile(pkg, files) {
         }).
         forEach(function(m) {
             modules[m.name] = {
-                requires: m.requires
+                requires: m.requires,
             }
         });
+    //generate Modules' alias
+    _.forIn(pkg.alias, function(value, key){
+        modules[key] = {
+            alias: value
+        };
+    });
+
 
     ret.modules = modules;
 
@@ -196,6 +250,7 @@ function build(options, files) {
 
 
     pkgData.files.forEach(function(file) {
+        console.log(file.moduleName, '->', file.mapModuleName);
         var destFile = path.join(dest, file.filename);
 
         var code = file.genCode || file.srcCode || null;
