@@ -14,67 +14,142 @@ function fileEql(file1, file2) {
     expect(readFile(file1)).to.be.eql(readFile(file2));
 }
 
-describe('kpc.build', function () {
+function getFileEql(src, dest){
+    return function(name){
+        var srcFile = path.join(src, name);
+        var destFile = path.join(dest, name);
+        fileEql(srcFile, destFile);
+    };
+}
 
-    before(function(done) {
-        rimraf('sample/build', function() {
-            nodeKpc.build({
-                'pkg': {
-                    name: 'xcake',
-                    path: 'sample/src',
-                    ipn: true
-                },
-                dest: 'sample/build',
-                depFile: 'sample/build/map.js'
-            }, 'sample/src/**/*.js');
-            done();
+describe('kpc.build', function () {
+    var expectEql = getFileEql('sample/build', 'sample/expect');
+
+    describe('default', function() {
+        before(function(done) {
+            rimraf('sample/build', function() {
+                nodeKpc.build({
+                    'pkg': {
+                        name: 'xcake',
+                        path: 'sample/src'
+                    },
+                    dest: 'sample/build',
+                    depFile: 'sample/build/map.js'
+                }, 'sample/src/**/*.js');
+                done();
+            });
+        });
+
+        it('should build dep file', function () {
+            expectEql('map.js');
+        });
+
+        it('should kissy module with name and factory (app/name-fac.js)', function () {
+            expectEql('app/name-fac.js');
+        });
+
+        it('should file with multi modules (app/multi-module.js)', function () {
+            expectEql('app/multi-module.js');
+        });
+
+
+        it('should build cjs style module (app/cjs.js)', function () {
+            expectEql('app/cjs.js');
+        });
+
+        it('should build compiled cjs style module (app/cjs-full.js)', function () {
+            expectEql('app/cjs-full.js');
+        });
+
+        it('should build kissy module with factory and config (app/fac-config.js)', function () {
+            expectEql('app/fac-config.js');
+        });
+
+        it('should build kissy module with name, factory and config (app/name-fac-config.js)', function () {
+            expectEql('app/name-fac-config.js');
+        });
+
+        it('should build no kissy module (app/no-kissy.js)', function () {
+            expectEql('app/no-kissy.js');
+        });
+
+        it('should build object kissy module (app/object.js)', function () {
+            expectEql('app/object.js');
+        });
+
+        it('should build string kissy module (app/string.js)', function () {
+            expectEql('app/string.js');
+        });
+
+        it('should build kissy-module in deeper directory (pages/home/)', function () {
+            expectEql('pages/home/index.js');
+            expectEql('pages/home/mod.js');
         });
     });
 
-    it('should build dep file', function () {
-        fileEql('sample/build/map.js', 'sample/expect/map.js');
-    });
+    describe('flatten modules', function() {
+        var fileCheck = getFileEql('sample/build', 'sample/expect-flatten');
+        before(function(done) {
+            rimraf('sample/build', function() {
+                nodeKpc.build({
+                    'pkg': {
+                        flatten: true,
+                        name: 'xcake',
+                        path: 'sample/src'
+                    },
+                    dest: 'sample/build',
+                    depFile: 'sample/build/map.js'
+                }, 'sample/src/**/*.js');
+                done();
+            });
+        });
 
-    it('should kissy module with name and factory (app/name-fac.js)', function () {
-        fileEql('sample/build/app/name-fac.js', 'sample/expect/app/name-fac.js');
-    });
-
-    it('should file with multi modules (app/multi-module.js)', function () {
-        fileEql('sample/build/app/multi-module.js', 'sample/expect/app/multi-module.js');
-    });
+        it('should build dep file', function () {
+            fileCheck('map.js');
+        });
+//
 
 
-    it('should build cjs style module (app/cjs.js)', function () {
-        fileEql('sample/build/app/cjs.js', 'sample/expect/app/cjs.js');
-    });
+        it('should file with multi modules (app/multi-module.js)', function () {
+            fileCheck('_3.js');
+        });
 
-    it('should build compiled cjs style module (app/cjs-full.js)', function () {
-        fileEql('sample/build/app/cjs-full.js', 'sample/expect/app/cjs-full.js');
-    });
 
-    it('should build kissy module with factory and config (app/fac-config.js)', function () {
-        fileEql('sample/build/app/fac-config.js', 'sample/expect/app/fac-config.js');
-    });
+        it('should build cjs style module (app/cjs.js)', function () {
+            fileCheck('_1.js');
+        });
 
-    it('should build kissy module with name, factory and config (app/name-fac-config.js)', function () {
-        fileEql('sample/build/app/name-fac-config.js', 'sample/expect/app/name-fac-config.js');
-    });
+        it('should build compiled cjs style module (app/cjs-full.js)', function () {
+            fileCheck('_0.js');
+        });
 
-    it('should build no kissy module (app/no-kissy.js)', function () {
-        fileEql('sample/build/app/no-kissy.js', 'sample/expect/app/no-kissy.js');
-    });
+        it('should build kissy module with factory and config (app/fac-config.js)', function () {
+            fileCheck('_2.js');
+        });
 
-    it('should build object kissy module (app/object.js)', function () {
-        fileEql('sample/build/app/object.js', 'sample/expect/app/object.js');
-    });
+        it('should build kissy module with name, factory and config (app/name-fac-config.js)', function () {
+            fileCheck('_4.js');
+        });
+        it('should kissy module with name and factory (app/name-fac.js)', function () {
+            fileCheck('_5.js');
+        });
 
-    it('should build string kissy module (app/string.js)', function () {
-        fileEql('sample/build/app/string.js', 'sample/expect/app/string.js');
-    });
 
-    it('should build kissy-module in deeper directory (pages/home/)', function () {
-        fileEql('sample/build/pages/home/index.js', 'sample/expect/pages/home/index.js');
-        fileEql('sample/build/pages/home/mod.js', 'sample/expect/pages/home/mod.js');
+        it('should build object kissy module (app/object.js)', function () {
+            fileCheck('_6.js');
+        });
+
+        it('should build string kissy module (app/string.js)', function () {
+            fileCheck('_7.js');
+        });
+
+        it('should build kissy-module in deeper directory (pages/home/)', function () {
+            fileCheck('_8.js');
+            fileCheck('_9.js');
+        });
+        it('should build no kissy module (app/no-kissy.js)', function () {
+            fileCheck('app/no-kissy.js');
+        });
     });
 
 });
