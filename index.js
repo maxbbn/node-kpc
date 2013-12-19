@@ -5,6 +5,7 @@ var _ = require('lodash');
 var path = require('path');
 var fs = require('fs');
 var glob = require("glob");
+var minimatch = require("minimatch");
 var mkdirp = require("mkdirp");
 var os = require("os");
 
@@ -42,11 +43,19 @@ function resolveFiles(files, defaultFile) {
 
 function preCompileFile(filename, pkg) {
 
+    var isEntry = pkg.entry ? (_.findIndex(pkg.entry, function(patten){
+        return minimatch(filename, patten)
+    }) >= 0) : true;
+
+//    console.log(filename, isEntry);
+
+
     var mo = {
         filename : filename,
         moduleName: tools.getModuleName(pkg, filename),
         srcFile: path.join(pkg.path, filename),
-        realFilename: filename
+        realFilename: filename,
+        isEntry: isEntry
     };
 
     mo.srcCode = fs.readFileSync(mo.srcFile, 'utf8');
@@ -82,9 +91,10 @@ function compileFile(mo, pkg) {
         mo.filename = mo.mapFilename;
     }
 
-
     var comment = '/**' + os.EOL;
+
     comment += ' * Generate by node-kpc' + os.EOL;
+
     if (mo.mapFilename) {
         comment += ' * map from ' + mo.realFilename + os.EOL;
     }
@@ -95,11 +105,88 @@ function compileFile(mo, pkg) {
     return mo;
 }
 
+function findAllNOEntryModule(mo, fileMap) {
+    var all = [];
+
+    function scan(mo){
+        var requiredModuleName = mo.modules.reduce(function(out, item){
+            return out.concat(item.requires);
+        }, []);
+
+        var submodule = requiredModuleName.
+            map(function(name){
+                return fileMap[tools.resolveModuleName(name, mo)];
+            }).
+            filter(function(mo){
+                return mo && !mo.isEntry && (all.indexOf(mo) === -1);
+            });
+        all = all.concat(submodule);
+
+        return submodule.forEach(function(mo) {
+            scan(mo);
+        });
+    }
+
+    scan(mo);
+
+    return all;
+
+
+}
+
+
+/**
+ * after CompileFile a File
+ *  - File concat
+ *  - Remove no entry module in requires
+ * @param {Object} mo
+ * @param {String} mo.modules requires of module
+ * @param {String} mo.genCode generated Code
+ * @param {Object} fileMap
+ * @param {Object} pkg
+ * @return {Object}
+ */
+function afterCompileFile(mo, fileMap, pkg) {
+
+    if (mo.isEntry && mo.isKISSY) {
+        var appendList = findAllNOEntryModule(mo, fileMap);
+
+        // 合并 require 的非entry文件
+        if (appendList.length) {
+            appendList.push(mo);
+            mo.genCode  = appendList.map(function(mo){
+                return mo.genCode;
+            }).join(os.EOL);
+        }
+        // 合并require的非entry文件的require, 到入口模块的map
+        var submoduleRequires = [];
+        appendList.forEach(function(mo){
+            mo.modules.forEach(function(module){
+                submoduleRequires = submoduleRequires.concat(module.requires.map(function(moduleName){
+                    return tools.resolveModuleName(moduleName, mo);
+                }));
+            });
+        });
+
+        submoduleRequires = _.uniq(submoduleRequires);
+
+        mo.modules[0].requires = mo.modules[0].requires.concat(submoduleRequires);
+
+        // remove no entry module from map
+
+    }
+
+
+
+
+    return mo;
+}
+
 /**
  * Generate unique module name
  */
-var generateModuleName = (function() {
-    var prefix = '_';
+var generateModuleName = (function(prefix) {
+    prefix = prefix || '_';
     var index = 0;
     return function() {
         var name = prefix + index.toString(32);
@@ -122,10 +209,20 @@ function compile(pkg, files) {
     var ret = {};
 
     var flatten = pkg.flatten;
-    var genName = generateModuleName();
+    var genName = generateModuleName('_');
+    var genName2 = generateModuleName('__');
 
     var pkgPath = pkg.path;
     var ignoredFiles = [];
+
+    var entry;
+    if (pkg.entry) {
+        if (_.isString(pkg.entry)) {
+            entry = [pkg.entry];
+        } else if(!_.isArray(pkg.entry)) {
+            throw new Error('pkg.entry is not an array or string');
+        }
+    }
 
     files = resolveFiles(files, path.join(pkgPath, '**/*')).
         map(function(file){
@@ -145,17 +242,16 @@ function compile(pkg, files) {
 
     // preCompile
     ret.files = files.
-        map(function(filename){
-
-
+        map(function(filename) {
             try {
                 var mo = preCompileFile(filename, pkg);
             } catch (e) {
                 e.filename = filename;
                 throw(e);
             }
+
             if (flatten && mo.isKISSY) {
-                mo.mapFilename = genName() + '.js';
+                mo.mapFilename = (mo.isEntry ? genName() : genName2()) + '.js';
                 mo.mapModuleName = tools.getModuleName(pkg, mo.mapFilename);
             }
 
@@ -171,6 +267,9 @@ function compile(pkg, files) {
 
     // compile
     ret.files = ret.files.map(function (mo) {
+        if (!mo.isKISSY) {
+            return mo;
+        }
 
         try {
             return compileFile(mo, pkg);
@@ -178,7 +277,35 @@ function compile(pkg, files) {
             e.filename = mo.realFilename;
             throw(e);
         }
+
     });
+
+    // afterCompile
+    var moduleMap = ret.files.reduce(function(prev, mo) {
+        prev[mo.mapModuleName || mo.moduleName] = mo;
+        return prev;
+    }, {});
+
+    ret.files = ret.files.map(function(mo) {
+        return afterCompileFile(mo, moduleMap, pkg);
+    }).filter(function(mo){
+        return mo.isEntry;
+    }).
+        map(function(mo) {
+            if (mo.modules) {
+                mo.modules = mo.modules.
+                    map(function(module) {
+                        module.requires = module.requires.filter(function(name){
+                            name = tools.resolveModuleName(name, mo);
+                            return !moduleMap[name] || moduleMap[name].isEntry;
+                        });
+
+                        return module;
+                    });
+            }
+            return mo
+        })
+
 
     ret.ignoredFiles = ignoredFiles;
 
@@ -200,13 +327,16 @@ function compile(pkg, files) {
                 requires: m.requires,
             }
         });
-    //generate Modules' alias
-    _.forIn(pkg.alias, function(value, key){
-        modules[key] = {
-            alias: value
-        };
-    });
 
+    //generate Modules' alias
+
+    ret.files.forEach(function(mo){
+        if (mo.mapModuleName) {
+            modules[mo.moduleName] = {
+                alias: mo.mapModuleName
+            };
+        }
+    });
 
     ret.modules = modules;
 
@@ -233,6 +363,7 @@ function  generateDepFile(modules) {
  * @param {Object} options.pkg Config Package
  * @param {String} options.dest Package path in filesystem
  * @param {String} options.depFile filename for dep file
+ * @param {String} options.entry entry point
  * @param {Array|String}  files Files to compile
  * @return {Object} the package compiled
  */
