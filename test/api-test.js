@@ -10,7 +10,7 @@ describe('kpc.compile', function () {
         before(function(){
             pkg = nodeKpc.compile({
                 name: 'xcake',
-                path: 'sample/src',
+                path: 'sample/base-src',
                 ipn: true
             });
         });
@@ -57,12 +57,12 @@ describe('kpc.compile', function () {
         before(function(){
             pkg = nodeKpc.compile({
                 name: 'xcake',
-                path: 'sample/src',
+                path: 'sample/base-src',
                 ipn: true
-            }, 'sample/src/app/*');
+            }, 'sample/base-src/app/*');
         });
 
-        it('should compile 7 files', function(){
+        it('should compile 9 files', function(){
             expect(pkg.files.length).to.be(9);
         });
     });
