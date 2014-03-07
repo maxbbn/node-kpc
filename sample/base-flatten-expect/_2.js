@@ -9,4 +9,4 @@ KISSY.add('xcake/_2', function (S, Node) {
             S.log('common mod');
         }
     };
-}, { 'requires': ['node'] });
+}, { requires: ['node'] });

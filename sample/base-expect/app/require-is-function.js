@@ -1,8 +1,7 @@
 /**
  * Generate by node-kpc
- * map from app/require-is-function.js
  */
-KISSY.add('xcake/_7', function (S, Node) {
+KISSY.add('xcake/app/require-is-function', function (S, Node) {
     var $ = Node.all;
     return {
         log: function () {

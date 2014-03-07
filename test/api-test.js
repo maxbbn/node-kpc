@@ -16,7 +16,7 @@ describe('kpc.compile', function () {
         });
 
         it('should compile all files', function(){
-            expect(pkg.files.length).to.be(11);
+            expect(pkg.files.length).to.be(12);
 
             pkg.files.forEach(function(file) {
 
@@ -63,7 +63,7 @@ describe('kpc.compile', function () {
         });
 
         it('should compile 9 files', function(){
-            expect(pkg.files.length).to.be(9);
+            expect(pkg.files.length).to.be(10);
         });
     });
 

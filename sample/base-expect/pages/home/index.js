@@ -17,7 +17,7 @@ KISSY.add('xcake/pages/home/index', function (S, Node, App, Mod) {
     }
     return { init: init };
 }, {
-    'requires': [
+    requires: [
         'node',
         'xcake/app/cjs',
         './mod',

@@ -152,8 +152,12 @@ describe('kpc.build', function () {
             fileCheck('_6.js');
         });
 
-        it('should build string kissy module (app/string.js)', function () {
+        it('should build string kissy module (app/require-is-function.js)', function () {
             fileCheck('_7.js');
+        });
+
+        it('should build string kissy module (app/string.js)', function () {
+            fileCheck('_8.js');
         });
 
         it('should build kissy-module in deeper directory (pages/home/)', function () {

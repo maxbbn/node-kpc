@@ -8,7 +8,7 @@ KISSY.add('xcake/app/name-fac-config', function (S) {
         }
     };
 }, {
-    'requires': [
+    requires: [
         'node',
         './cjs-full'
     ]

@@ -4,12 +4,12 @@
  */
 KISSY.add('xcake/_0', [
     'node',
-    'xcake/_8',
+    'xcake/_9',
     'xcake/_1',
     'xcake/app/example.css'
 ], function (S, require) {
     var Node = require('node');
-    var Header = require('xcake/_8');
+    var Header = require('xcake/_9');
     require('xcake/_1');
     require('xcake/app/example.css');
     var App = {};

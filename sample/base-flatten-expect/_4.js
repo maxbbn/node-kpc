@@ -9,7 +9,7 @@ KISSY.add('xcake/_4', function (S) {
         }
     };
 }, {
-    'requires': [
+    requires: [
         'node',
         'xcake/_0'
     ]

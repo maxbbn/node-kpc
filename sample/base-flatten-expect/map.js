@@ -3,7 +3,7 @@ KISSY.config('modules', {
     'xcake/_0': {
         'requires': [
             'node',
-            'xcake/_8',
+            'xcake/_9',
             'xcake/_1',
             'xcake/app/example.css'
         ]
@@ -11,7 +11,7 @@ KISSY.config('modules', {
     'xcake/_1': {
         'requires': [
             'node',
-            'xcake/_8',
+            'xcake/_9',
             'xcake/_0',
             'xcake/app/example.css'
         ]
@@ -23,11 +23,11 @@ KISSY.config('modules', {
             'xcake/_0'
         ]
     },
-    'xcake/_8': {
+    'xcake/_9': {
         'requires': [
             'node',
             'xcake/_1',
-            'xcake/_9',
+            'xcake/_a',
             'xcake/pages/home/page.css'
         ]
     },
@@ -38,7 +38,8 @@ KISSY.config('modules', {
     'xcake/app/name-fac-config': { 'alias': 'xcake/_4' },
     'xcake/app/name-fac': { 'alias': 'xcake/_5' },
     'xcake/app/object': { 'alias': 'xcake/_6' },
-    'xcake/app/string': { 'alias': 'xcake/_7' },
-    'xcake/pages/home/index': { 'alias': 'xcake/_8' },
-    'xcake/pages/home/mod': { 'alias': 'xcake/_9' }
+    'xcake/app/require-is-function': { 'alias': 'xcake/_7' },
+    'xcake/app/string': { 'alias': 'xcake/_8' },
+    'xcake/pages/home/index': { 'alias': 'xcake/_9' },
+    'xcake/pages/home/mod': { 'alias': 'xcake/_a' }
 });
