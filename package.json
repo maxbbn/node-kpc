@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/maxbbn/node-kpc"
+    "url": "https://github.com/abc-team/node-kpc"
   },
   "keywords": [
     "KISSY",
@@ -17,7 +17,7 @@
   "author": "文龙 <wenlong@taobao.com>",
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/maxbbn/node-kpc/issues"
+    "url": "https://github.com/abc-team/node-kpc/issues"
   },
   "dependencies": {
     "mkdirp": "~0.3.5",
