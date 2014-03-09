@@ -4,7 +4,6 @@ KISSY.config('modules', {
         'requires': [
             'base',
             'node',
-            'base',
             'gallery/button/1.0/index'
         ]
     },
